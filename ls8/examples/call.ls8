@@ -1,0 +1,31 @@
+10000010 # LDI R1,MULT2PRINT    82  trace 1: put 18 in register R1 / 18 in dec = 24 
+00000001
+00011000 #                      bin to hex = 18
+10000010 # LDI R0,10            82  trace 2: put 10 in register 0
+00000000
+00001010
+01010000 # CALL R1              50  trace 3: call value in register 1 - jump to line 24 aka hex 18
+00000001
+10000010 # LDI R0,15            82  
+00000000
+00001111
+01010000 # CALL R1              50
+00000001
+10000010 # LDI R0,18            82
+00000000
+00010010
+01010000 # CALL R1              50
+00000001
+10000010 # LDI R0,30            82
+00000000
+00011110
+01010000 # CALL R1              50
+00000001
+00000001 # HLT                  01
+# MULT2PRINT (address 24):
+10100000 # ADD R0,R0            A0  trace 4: add val in reg 0 to itself 
+00000000
+00000000
+01000111 # PRN R0               47
+00000000
+00010001 # RET                  11   

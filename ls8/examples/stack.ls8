@@ -1,0 +1,31 @@
+10000010 # LDI R0,1    sets R0 to 1
+00000000
+00000001
+10000010 # LDI R1,2    sets R1 to 2
+00000001
+00000010
+01000101 # PUSH R0     first stack in is 1
+00000000
+01000101 # PUSH R1     next stack in is 2
+00000001
+10000010 # LDI R0,3    resetting R0 to 3
+00000000
+00000011
+01000110 # POP R0      pop 2, set R0 to 2
+00000000
+01000111 # PRN R0      print 2
+00000000
+10000010 # LDI R0,4    set R0 to 4
+00000000
+00000100
+01000101 # PUSH R0     next stack in is 4   # we now have 1, 4 in stack, 4 is last in
+00000000
+01000110 # POP R2      pop 4, set R2 to 4
+00000010
+01000110 # POP R1      pop 1, set R1 to 1 
+00000001
+01000111 # PRN R2      print 4
+00000010
+01000111 # PRN R1      print 1
+00000001
+00000001 # HLT         exit
