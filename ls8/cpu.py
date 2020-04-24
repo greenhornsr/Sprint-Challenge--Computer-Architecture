@@ -15,8 +15,11 @@ class CPU:
         # Internal Registers
         self.pc = 0  ##* Program Counter, address of the currently executing instruction.  what do i initialize this to? 
         self.ir = self.ram[self.pc]  ##* Instruction Register, contains a copy of the currently executing instruction
-
+        
+        # line tracker for the executing program within examples directory
         self.address = 0
+
+        self.FL = 0b00000000
 
         # Stack Pointer
         self.sp = 7  # Used to refer to Register 7
@@ -35,6 +38,10 @@ class CPU:
         self.OP_ADD = 0b10100000
         self.OP_MUL = 0b10100010
         self.OP_HLT = 0b00000001
+        self.OP_CMP = 0b10100111
+        self.OP_JMP = 0b01010100
+        self.OP_JEQ = 0b01010101
+        self.OP_JNE = 0b01010110
 
         # Dispatch Table - Beautifying RUN  # likely a better way to dynamically do this.
         self.dispatchtable = {}
@@ -47,22 +54,11 @@ class CPU:
         self.dispatchtable[self.OP_ADD] = self.handle_ADD
         self.dispatchtable[self.OP_MUL] = self.handle_MUL
         self.dispatchtable[self.OP_HLT] = self.handle_HLT
+        self.dispatchtable[self.OP_CMP] = self.handle_CMP
+        self.dispatchtable[self.OP_JMP] = self.handle_JMP
+        self.dispatchtable[self.OP_JEQ] = self.handle_JEQ
+        self.dispatchtable[self.OP_JNE] = self.handle_JNE
 
-    # In `CPU`, add method `ram_read()` and `ram_write()` that access the RAM inside
-    # the `CPU` object.
-
-    # `ram_read()` should accept the address to read and return the value stored
-    # there.
-
-    # `ram_write()` should accept a value to write, and the address to write it to.
-
-    # Inside the CPU, there are two internal registers used for memory operations:
-    # the _Memory Address Register_ (MAR) and the _Memory Data Register_ (MDR). The
-    # MAR contains the address that is being read or written to. The MDR contains
-    # the data that was read or the data to write. You don't need to add the MAR or
-    # MDR to your `CPU` class, but they would make handy parameter names for
-    # `ram_read()` and `ram_write()`, if you wanted.
-    
 
     # MAR is Memory Address Register; holds the memory address we're reading or writing.
     # MDR is Memory Data Register, holds the value to write or the value just read. 
@@ -126,23 +122,26 @@ class CPU:
         print()
 
     # ************** Beauty OP Functions **************
+    # LDI 82/130 (hex/dec)
     def handle_LDI(self, increment, opa, opb):
         self.reg[opa] = opb   
         self.pc += increment
 
-
+    # PUSH 45 (hex)
     def handle_PUSH(self, increment, opa):
         self.sp_mem_index -= 1
         self.ram[self.sp_mem_index] = self.reg[opa]  
 
         self.pc += increment
 
+    # POP 46 (hex)
     def handle_POP(self, increment, opa):
         self.reg[opa] = self.ram[self.sp_mem_index]
         
         self.sp_mem_index += 1
         self.pc += increment
 
+    # CALL 50 (hex)
     def handle_CALL(self, increment, opa):
         next_instruct = (self.pc + increment)
 
@@ -150,8 +149,10 @@ class CPU:
         self.sp_mem_index -= 1
         self.ram[self.sp_mem_index] = next_instruct
         # reassign self.pc to value in given register 
+        # print(f"reg[opa]: {self.reg[opa]}")
         self.pc = self.reg[opa]
 
+    # RET 11 (hex)
     def handle_RET(self):
         # pop return address from top of stack
         ret_address = self.ram[self.sp_mem_index]
@@ -159,21 +160,78 @@ class CPU:
 
         self.pc = ret_address
 
+    # PRN 47 (hex)
     def handle_PRN(self, increment, opa):
         # print(f"Register[{opa}]!!!: ", hex(self.reg[opa]).lstrip("0x"))
-        print(f"Register[{opa}]!!!: ", self.reg[opa])
+        print(f"Register[{opa}]: {self.reg[opa]}\n")
         self.pc += increment
 
+    # MUL A2 (hex)
     def handle_MUL(self, increment, opa, opb):
         self.alu("MUL", opa, opb)
         self.pc += increment
 
+    # ADD A0 (hex)
     def handle_ADD(self, increment, opa, opb):
         self.alu("ADD", opa, opb)
         self.pc += increment
 
+    # HLT 01 (hex)
     def handle_HLT(self):
         sys.exit("EXITING!")
+
+    # CMP A7 (hex)  # MC = 0b00000LGE
+    def handle_CMP(self, increment, opa, opb):
+        # 0b00000100 Register A Less Than Register B
+        rega = self.reg[opa]
+        regb = self.reg[opb]
+        result = ""
+        if rega < regb:
+            result = f"Register A: {opa} is LESS than Register B: {opb}! "
+            self.FL = 0b00000100
+        # 0b00000100 Register A Greater Than Register B
+        elif rega > regb:
+            result = f"Register A: {opa} is GREATER than Register B: {opb}!"
+            self.FL = 0b00000010
+        elif (rega ^ regb) == 0:
+            result = f"Register A: {opa} is EQUAL to Register B: {opb}!"
+            self.FL = 0b00000001
+        self.pc += increment
+        print(result)
+        
+    # JMP 54(hex) 
+    def handle_JMP(self, increment, opa):
+        # print(f"{opa}, {self.reg[opa]}")
+        # print("address: ", self.address)
+        self.address = self.reg[opa]
+        # print("address: ", self.address)
+        # print("PC: ", self.pc)
+        self.pc = self.address
+        # print("PC: ", self.pc)
+    
+    # JEQ 55(hex)
+    def handle_JEQ(self, increment, opa):
+        even_flag = ((self.FL ^ 0b00000001))
+        # print(f"even FL?: {even_flag}")
+        test = format(self.FL,'#010b')
+        print(f"JEQ - self.FL: {test}")
+        if even_flag == 0:
+            self.handle_JMP(increment, opa)
+        else:
+            self.pc += increment
+    
+    # JNE 56(hex)
+    def handle_JNE(self, increment, opa):
+        even_flag = ((self.FL ^ 0b00000001))
+        test = format(self.FL,'#010b')
+        print(f"JNE - self.FL: {test}")
+        if even_flag != 0:
+            self.handle_JMP(increment, opa)
+        else:
+            self.pc += increment
+
+
+
 
     # ************** END Beauty Functions **************
 
