@@ -28,37 +28,23 @@ class CPU:
         # Register 7        assigned to STARTING memory[index] 244(0xF4) for STACK processes PUSH/POP
         self.reg[self.sp] = self.ram[self.sp_mem_index]
 
-        # Program Machine Codes  #this could be improved.  Probably not ideal to have the Machine codes.
-        self.OP_LDI = 0b10000010 
-        self.OP_PUSH = 0b01000101
-        self.OP_POP = 0b01000110
-        self.OP_CALL = 0b01010000
-        self.OP_RET = 0b00010001
-        self.OP_PRN = 0b01000111
-        self.OP_ADD = 0b10100000
-        self.OP_MUL = 0b10100010
-        self.OP_HLT = 0b00000001
-        self.OP_CMP = 0b10100111
-        self.OP_JMP = 0b01010100
-        self.OP_JEQ = 0b01010101
-        self.OP_JNE = 0b01010110
-
         # Dispatch Table - Beautifying RUN  # likely a better way to dynamically do this.
-        self.dispatchtable = {}
-        self.dispatchtable[self.OP_LDI] = self.handle_LDI
-        self.dispatchtable[self.OP_PUSH] = self.handle_PUSH
-        self.dispatchtable[self.OP_POP] = self.handle_POP
-        self.dispatchtable[self.OP_CALL] = self.handle_CALL
-        self.dispatchtable[self.OP_RET] = self.handle_RET
-        self.dispatchtable[self.OP_PRN] = self.handle_PRN
-        self.dispatchtable[self.OP_ADD] = self.handle_ADD
-        self.dispatchtable[self.OP_MUL] = self.handle_MUL
-        self.dispatchtable[self.OP_HLT] = self.handle_HLT
-        self.dispatchtable[self.OP_CMP] = self.handle_CMP
-        self.dispatchtable[self.OP_JMP] = self.handle_JMP
-        self.dispatchtable[self.OP_JEQ] = self.handle_JEQ
-        self.dispatchtable[self.OP_JNE] = self.handle_JNE
-
+        # K:V is machine_code: handle_method
+        self.dispatchtable = {
+            0b10000010 : self.handle_LDI,
+            0b01000101 : self.handle_PUSH,
+            0b01000110 : self.handle_POP,
+            0b01010000 : self.handle_CALL,
+            0b00010001 : self.handle_RET,
+            0b01000111 : self.handle_PRN,
+            0b10100000 : self.handle_ADD,
+            0b10100010 : self.handle_MUL,
+            0b00000001 : self.handle_HLT,
+            0b10100111 : self.handle_CMP,
+            0b01010100 : self.handle_JMP,
+            0b01010101 : self.handle_JEQ,
+            0b01010110 : self.handle_JNE
+        }
 
     # MAR is Memory Address Register; holds the memory address we're reading or writing.
     # MDR is Memory Data Register, holds the value to write or the value just read. 
