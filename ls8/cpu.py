@@ -19,6 +19,7 @@ class CPU:
         # line tracker for the executing program within examples directory
         self.address = 0
 
+        # Less than, Greater than, Equal to flags.  Machine code: 0b00000LGE
         self.FL = 0b00000000
 
         # Stack Pointer
