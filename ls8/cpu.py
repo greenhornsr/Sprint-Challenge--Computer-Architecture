@@ -20,7 +20,9 @@ class CPU:
         self.address = 0
 
         # Less than, Greater than, Equal to flags.  Machine code: 0b00000LGE
+        # Result message 
         self.FL = 0b00000000
+        self.result = ""
 
         # Stack Pointer
         self.sp = 7  # Used to refer to Register 7
@@ -150,6 +152,7 @@ class CPU:
     # PRN 47 (hex)
     def handle_PRN(self, increment, opa):
         # print(f"Register[{opa}]!!!: ", hex(self.reg[opa]).lstrip("0x"))
+        print(self.result)
         print(f"Register[{opa}]: {self.reg[opa]}\n")
         self.pc += increment
 
@@ -172,19 +175,17 @@ class CPU:
         # 0b00000100 Register A Less Than Register B
         rega = self.reg[opa]
         regb = self.reg[opb]
-        result = ""
         if rega < regb:
-            result = f"Register A: {opa} is LESS than Register B: {opb}! "
+            self.result = f"Register A: {self.reg[opa]} is LESS than Register B: {self.reg[opb]}! "
             self.FL = 0b00000100
         # 0b00000100 Register A Greater Than Register B
         elif rega > regb:
-            result = f"Register A: {opa} is GREATER than Register B: {opb}!"
+            self.result = f"Register A: {self.reg[opa]} is GREATER than Register B: {self.reg[opb]}!"
             self.FL = 0b00000010
         elif (rega ^ regb) == 0:
-            result = f"Register A: {opa} is EQUAL to Register B: {opb}!"
+            self.result = f"Register A: {self.reg[opa]} is EQUAL to Register B: {self.reg[opb]}!"
             self.FL = 0b00000001
         self.pc += increment
-        # print(result)
         
     # JMP 54(hex) 
     def handle_JMP(self, increment, opa):
