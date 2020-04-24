@@ -197,7 +197,7 @@ class CPU:
             result = f"Register A: {opa} is EQUAL to Register B: {opb}!"
             self.FL = 0b00000001
         self.pc += increment
-        print(result)
+        # print(result)
         
     # JMP 54(hex) 
     def handle_JMP(self, increment, opa):
@@ -213,8 +213,8 @@ class CPU:
     def handle_JEQ(self, increment, opa):
         even_flag = ((self.FL ^ 0b00000001))
         # print(f"even FL?: {even_flag}")
-        test = format(self.FL,'#010b')
-        print(f"JEQ - self.FL: {test}")
+        # test = format(self.FL,'#010b')
+        # print(f"JEQ - self.FL: {test}")
         if even_flag == 0:
             self.handle_JMP(increment, opa)
         else:
@@ -223,8 +223,8 @@ class CPU:
     # JNE 56(hex)
     def handle_JNE(self, increment, opa):
         even_flag = ((self.FL ^ 0b00000001))
-        test = format(self.FL,'#010b')
-        print(f"JNE - self.FL: {test}")
+        # test = format(self.FL,'#010b')
+        # print(f"JNE - self.FL: {test}")
         if even_flag != 0:
             self.handle_JMP(increment, opa)
         else:
